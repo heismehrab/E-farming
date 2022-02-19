@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Chat;
 
 use App\Models\ChatMessage;
+use Carbon\Carbon;
 use Illuminate\Contracts\Foundation\Application;
 
 use Illuminate\Contracts\View\Factory;
@@ -14,6 +15,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 class ChatController extends Controller
@@ -119,6 +121,39 @@ class ChatController extends Controller
         return response()
             ->json([
                 'success' => true,
+            ]);
+    }
+
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     * @throws ValidationException
+     */
+    public function getUnseenMessages(Request $request)
+    {
+        $this->validate($request, [
+            'lastChatId' => 'required|int',
+            'chatId' => 'required|string'
+        ]);
+
+        // Get Messages.
+        $messages = ChatMessage::query()
+            ->whereHas('chat', function ($query) use ($request) {
+                return $query->where('uuid', $request->get('chatId'));
+            })
+            ->where('id', '>', $request->get('lastChatId'))
+            ->orderBy('created_at')
+            ->get();
+
+        foreach ($messages as $key => $message) {
+            $messages[$key]->created_at_time
+                = $messages[$key]->created_at->format('H:i:s');
+        }
+
+        return response()
+            ->json([
+                'success' => true,
+                'messages' => $messages
             ]);
     }
 }

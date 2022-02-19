@@ -30,7 +30,6 @@
     @if (Route::has('login'))
         <div class="hidden fixed top-0 right-0 px-6 py-4 sm:block">
             <a href="{{ url('/blog') }}" class="text-sm text-gray-700 dark:text-gray-500 underline">Blog</a>&nbsp;
-            <a href="{{ url('/forum') }}" class="text-sm text-gray-700 dark:text-gray-500 underline">Forum</a>&nbsp;
             <a href="{{ url('/shop') }}" class="text-sm text-gray-700 dark:text-gray-500 underline">Shop</a>&nbsp;
             @auth
                 <a href="{{ url('/chats') }}" class="text-sm text-gray-700 dark:text-gray-500 underline">Chats</a>&nbsp;
@@ -78,6 +77,8 @@
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script>
+    window.lastMessageId = 0;
+
     function sendMessage() {
         var message = document.getElementById('message').value
 
@@ -111,6 +112,47 @@
 
         $("#messages").append(message);
     }
+
+    function appendAdvanceMessage(message, time, userId) {
+        var side = userId == {{\Illuminate\Support\Facades\Auth::id()}} ? 'right' : 'left';
+
+        message = "<li class='message " + side + " appeared'>" +
+            "<div class='avatar'></div><div class='text_wrapper'><div class='text'>" + message + '<br><br>' + time + "</li>"
+
+        $("#messages").append(message);
+    }
+
+    function updateChat() {
+        window.lastMessageId = window.lastMessageId >= ({{ $messages->count() }} > 0 ? {{ $messages[$messages->count() - 1]->id }} : 0)
+            ? window.lastMessageId
+            : {{ $messages[$messages->count() - 1]->id }};
+
+        $.ajax({
+            type: "GET",
+            url: "{{ route('unseen-chats') }}",
+            data: {
+                "_token": "{{ csrf_token() }}",
+                chatId: "{{ $chatId }}",
+                lastChatId: window.lastMessageId,
+            },
+            success: function (data) {
+                if (data.success == true) {
+
+                    data.messages.forEach(function (item) {
+                        window.lastMessageId = item.id
+
+                        appendAdvanceMessage(
+                            item.message,
+                            item.created_at_time,
+                            item.from_user_id
+                        );
+                    });
+                }
+            }
+        });
+    }
+
+    setInterval(updateChat, 10000);
 </script>
 
 <style>

@@ -27,6 +27,8 @@ Route::get('/logout', function () {
 })->name('logout');
 
 Route::group(['middleware' => ['auth']], function () {
+
+    // Chat routes.
     Route::get('/chats', [ChatController::class, 'index'])
         ->name('chats');
 
@@ -35,5 +37,12 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::post('/chats', [ChatController::class, 'storeMessage'])
         ->name('store-chat');
+
+    Route::get('/unseen-chats', [ChatController::class, 'getUnseenMessages'])
+        ->name('unseen-chats');
+
+    // Blog routes.
+    Route::get('/blog', [ChatController::class, 'index'])
+        ->name('chats');
 });
 
