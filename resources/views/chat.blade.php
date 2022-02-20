@@ -123,9 +123,15 @@
     }
 
     function updateChat() {
-        window.lastMessageId = window.lastMessageId >= ({{ $messages->count() }} > 0 ? {{ $messages[$messages->count() - 1]->id }} : 0)
+        @if($messages->count())
+            var lastMessageId = {{ $messages[$messages->count() - 1]->id }};
+        @else
+            var lastMessageId = 0;
+        @endif
+
+        window.lastMessageId = window.lastMessageId >= lastMessageId
             ? window.lastMessageId
-            : {{ $messages[$messages->count() - 1]->id }};
+            : lastMessageId;
 
         $.ajax({
             type: "GET",
