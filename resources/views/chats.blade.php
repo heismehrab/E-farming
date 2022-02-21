@@ -29,8 +29,8 @@
 <div class="relative flex items-top justify-center min-h-screen bg-gray-100 dark:bg-gray-900 sm:items-center py-4 sm:pt-0">
     @if (Route::has('login'))
         <div class="hidden fixed top-0 right-0 px-6 py-4 sm:block">
+            <a href="{{ url('/') }}" class="text-sm text-gray-700 dark:text-gray-500 underline">home</a>&nbsp;
             <a href="{{ url('/blog') }}" class="text-sm text-gray-700 dark:text-gray-500 underline">Blog</a>&nbsp;
-            <a href="{{ url('/forum') }}" class="text-sm text-gray-700 dark:text-gray-500 underline">Forum</a>&nbsp;
             <a href="{{ url('/shop') }}" class="text-sm text-gray-700 dark:text-gray-500 underline">Shop</a>&nbsp;
             @auth
                 <a href="{{ url('/logout') }}" class="text-sm text-gray-700 dark:text-gray-500 underline">Logout</a>
@@ -57,7 +57,7 @@
                         <div class="p-6">
                             <div class="flex items-center">
                                 <div class="ml-4 text-lg leading-7 font-semibold">
-                                    <a href="{{ url('chats') }}/{{ $chat->uuid }}" class="underline text-gray-900 dark:text-white">{{ $chat->name }}</a>
+                                    <a href="{{ url('chats') }}/{{ $chat->uuid }}" class="underline text-gray-900 dark:text-white"> @if(\Illuminate\Support\Facades\Auth::id() == $chat->fromUser->id) {{ $chat->toUser->name }}  @else {{ $chat->fromUser->name }} @endif</a>
                                 </div>
                             </div>
 

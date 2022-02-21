@@ -29,10 +29,11 @@
 <div class="relative flex items-top justify-center min-h-screen bg-gray-100 dark:bg-gray-900 sm:items-center py-4 sm:pt-0">
     @if (Route::has('login'))
         <div class="hidden fixed top-0 right-0 px-6 py-4 sm:block">
+            <a href="{{ url('/') }}" class="text-sm text-gray-700 dark:text-gray-500 underline">home</a>&nbsp;
             <a href="{{ url('/blog') }}" class="text-sm text-gray-700 dark:text-gray-500 underline">Blog</a>&nbsp;
             <a href="{{ url('/shop') }}" class="text-sm text-gray-700 dark:text-gray-500 underline">Shop</a>&nbsp;
+            <a href="{{ url('/chats') }}" class="text-sm text-gray-700 dark:text-gray-500 underline">Chats</a>&nbsp;
             @auth
-                <a href="{{ url('/chats') }}" class="text-sm text-gray-700 dark:text-gray-500 underline">Chats</a>&nbsp;
                 <a href="{{ url('/logout') }}" class="text-sm text-gray-700 dark:text-gray-500 underline">Logout</a>
             @else
                 <a href="{{ route('login') }}" class="text-sm text-gray-700 dark:text-gray-500 underline">Log in</a>

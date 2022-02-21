@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Chat;
 
 use App\Models\ChatMessage;
-use Carbon\Carbon;
+use App\Models\User;
 use Illuminate\Contracts\Foundation\Application;
 
 use Illuminate\Contracts\View\Factory;
@@ -17,6 +17,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use Ramsey\Uuid\Uuid;
 
 class ChatController extends Controller
 {
@@ -28,17 +29,11 @@ class ChatController extends Controller
     /**
      * Get the user chats list.
      */
-    public function index(): string
+    public function index()
     {
-        $chats = Chat::query()
+        $chats = Chat::with(['fromUser', 'toUser'])
             ->where('from_user_id', Auth::id())
             ->orWhere('to_user_id', Auth::id())
-            ->select(
-                'id',
-                'name',
-                'uuid',
-                'updated_at'
-            )
             ->get();
 
         return view('chats', [
@@ -155,5 +150,54 @@ class ChatController extends Controller
                 'success' => true,
                 'messages' => $messages
             ]);
+    }
+
+    public function createChat(int $userId)
+    {
+        if (Auth::id() == $userId) {
+            return redirect()->back();
+        }
+
+        $user = User::query()
+            ->findOrFail($userId, ['name']);
+
+        // Check for existing chats.
+        $chat = Chat::query()
+            ->where(function ($query) use ($userId) {
+                return $query->where('from_user_id', Auth::id())
+                    ->where('to_user_id', $userId);
+            })
+            ->orWhere(function ($query) use ($userId) {
+                return $query->where('from_user_id', $userId)
+                    ->where('to_user_id', Auth::id());
+            })
+            ->select('uuid')
+            ->first();
+
+        if (is_null($chat)) {
+            Chat::query()
+                ->create([
+                    'uuid' => $chatUuid = Uuid::uuid4()->toString(),
+
+                    'from_user_id' => Auth::id(),
+                    'to_user_id' => $userId,
+
+                    'name' => $user->name
+                    ]);
+        } else {
+            $chatUuid = $chat->uuid;
+        }
+
+        // Get Messages.
+        $messages = ChatMessage::query()
+            ->whereHas('chat', function ($query) use ($chatUuid) {
+                return $query->where('uuid', $chatUuid);
+            })
+            ->get();
+
+        return view('chat', [
+            'messages' => $messages,
+            'chatId' => $chatUuid
+        ]);
     }
 }

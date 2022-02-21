@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\BlogController;
+use App\Http\Controllers\ShopController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -26,6 +28,10 @@ Route::get('/logout', function () {
     return redirect('/');
 })->name('logout');
 
+// Blog routes.
+Route::get('/blog', [BlogController::class, 'index'])
+    ->name('blog');
+
 Route::group(['middleware' => ['auth']], function () {
 
     // Chat routes.
@@ -38,11 +44,28 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/chats', [ChatController::class, 'storeMessage'])
         ->name('store-chat');
 
+    Route::get('/chats-create/{userId}', [ChatController::class, 'createChat'])
+        ->name('create-chat');
+
     Route::get('/unseen-chats', [ChatController::class, 'getUnseenMessages'])
         ->name('unseen-chats');
 
     // Blog routes.
-    Route::get('/blog', [ChatController::class, 'index'])
-        ->name('chats');
+    Route::post('/blog', [BlogController::class, 'store'])
+        ->name('blog-store');
+
+    // Blog routes.
+    Route::delete('/blog', [BlogController::class, 'delete'])
+        ->name('blog-delete');
+
+    // Shop routes.
+    Route::get('/shop', [ShopController::class, 'index'])
+        ->name('shop');
+
+    Route::delete('/shop', [ShopController::class, 'detele'])
+        ->name('shop-delete');
+
+    Route::post('/shop', [ShopController::class, 'create'])
+        ->name('shop-store');
 });
 
