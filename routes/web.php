@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\BlogController;
+use App\Http\Controllers\Controller;
 use App\Http\Controllers\ShopController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -68,4 +69,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/shop', [ShopController::class, 'create'])
         ->name('shop-store');
 });
+
+Route::post('/api/details/', [Controller::class, 'details'])
+    ->name('shop-store');
 

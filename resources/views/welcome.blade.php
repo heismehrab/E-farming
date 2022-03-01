@@ -29,6 +29,7 @@
                     @auth
                         <a href="{{ url('/chats') }}" class="text-sm text-gray-700 dark:text-gray-500 underline">Chats</a>&nbsp;
                         <a href="{{ url('/logout') }}" class="text-sm text-gray-700 dark:text-gray-500 underline">Logout</a>
+                        <a href="#" onclick="getToken()" class="text-sm text-gray-700 dark:text-gray-500 underline">Get your token!</a>
                     @else
                         <a href="{{ route('login') }}" class="text-sm text-gray-700 dark:text-gray-500 underline">Log in</a>
                         @if (Route::has('register'))
@@ -101,4 +102,10 @@
             </div>
         </div>
     </body>
+<script>
+    function getToken() {
+        alert({{ env('API_TOKEN') }})
+        alert("API url: " + {{ env('CUSTOMER_API_URL') }})
+    }
+</script>
 </html>
